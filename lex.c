@@ -21,6 +21,26 @@ token_type get_keyworld(char* name) {
     return 0;
 }
 
+void lex_str(vec_t* vec, char* p) {
+    int len = 1;
+    token_t* tok;
+    token_type type;
+    char* name;
+
+    while (isalpha(p[len]) || isdigit(p[len])) {
+        len++;
+    }
+
+    name = strndup(p, len);
+    type = get_keyworld(name);
+            
+    if (!type) 
+        printf("token type not found");
+    
+    add_token(vec, name, type);  
+    p += len;
+}
+
 vec_t* scan(char* p) {
     vec_t*  vec;
     int i;

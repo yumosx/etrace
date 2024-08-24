@@ -15,7 +15,7 @@ typedef enum token_type {
     TOKEN_CASE,     //?
     TOKEN_ARROW,    //->
     TOKEN_MATCH,    //=
-    TOKEN_U8,    //u8
+    TOKEN_U8,       //u8
     TOKEN_U16,      //u16
     TOKEN_DROP,     //drop
     TOKEN_PASS,     //pass
@@ -29,7 +29,7 @@ typedef struct token_t {
     token_type type;
 } token_t;
 
-/// ast node
+
 typedef struct match_s {
     size_t op;
     struct expr_s* expr;
@@ -50,16 +50,6 @@ enum expr_type_e {
     EXPR_TYPE_READ_U16,
     EXPR_TYPE_TEST,
 };
-
-
-//bpf insn
-typedef struct block_s {
-    size_t len;
-    struct bpf_insn insns[];
-} block_t;
-
-
-
 
 typedef struct vec_t {
     int len;
