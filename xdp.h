@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <linux/rtnetlink.h>
 
 //  token
 typedef enum token_type {
@@ -29,27 +30,27 @@ typedef struct token_t {
     token_type type;
 } token_t;
 
-
-typedef struct match_s {
-    size_t op;
-    struct expr_s* expr;
-} match_t;
-
-
-typedef struct arm_s {
-    struct match_s* macth;
-    struct expr_s* expr;
-    struct arm_s* next;
-    struct vertex_s* then_v;
-} arm_t;
-
-
 enum expr_type_e {
     EXPR_TYPE_CONST,
     EXPR_TYPE_READ_U8,
     EXPR_TYPE_READ_U16,
     EXPR_TYPE_TEST,
 };
+
+typedef enum {
+    NODE_VAR,
+    NODE_INT,
+} type_t;
+
+typedef struct node_t {
+    type_t type;
+} node_t;
+
+typedef struct req_t{
+    struct nlmsghdr nhdr;
+    struct ifinfomsg ifinfo;
+    char buf[64];
+} req_t;
 
 typedef struct vec_t {
     int len;

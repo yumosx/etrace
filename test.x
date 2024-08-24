@@ -1,13 +1,16 @@
 BEGIN{
-    out("attach a xdp prog");
+    out("start a program");
 }
 
+#const (
+    first = packet[12, u8];
+    udp   = packet[23, u16];
+    arp   = 0x0806;
+    ip    = 0x0800;
+);
 
-#define target u16@12
-
-target?
-  =0x0800 -> u8@57302?
-               =0x1337 -> pass;
-               =0xdead -> 0xbeaf;
-               drop;
-  =u16@42 -> pass;
+case first:
+  =arp -> pass;
+  =ip -> =udp -> drop;
+  then -> puts("no match");
+end
