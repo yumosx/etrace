@@ -1,5 +1,5 @@
 BEGIN{
-    out("start a program");
+  puts("start a program");
 }
 
 #const (
@@ -9,7 +9,7 @@ BEGIN{
     ip    = 0x0800;
 );
 
-case first:
+case first
   =arp -> pass;
   =ip -> =udp -> drop;
   then -> puts("no match");

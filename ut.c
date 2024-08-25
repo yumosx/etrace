@@ -1,4 +1,3 @@
-
 #include "xdp.h"
 
 vec_t* vec_new() {

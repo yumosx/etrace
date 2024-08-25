@@ -1,45 +1,36 @@
 #include "xdp.h"
 
-token_t* add_token(vec_t* vec, char* name, token_type t) {
+token_t* add_token(vec_t* vec, char* str, token_type t) {
     token_t* tok = malloc(sizeof(*tok));
-    tok->name = name;
+    tok->str = str;
     tok->type = t;
     
     vec_push(vec, tok);
     return tok;
 }
 
+
+static kw_t kws[] = {
+    {.name="u8",     .type = TOKEN_U8},
+    {.name="u16",    .type = TOKEN_U16},
+    {.name="const",  .type = TOKEN_CONST},
+    {.name="case",   .type = TOKEN_CASE},
+    {.name="drop",   .type = TOKEN_DROP},
+    {.name="pass",   .type = TOKEN_PASS},
+    {.name="end",    .type = TOKEN_END}
+};
+static int kwlen = _size(kws); 
+
 token_type get_keyworld(char* name) {
-    if (!strcmp(name, "u8")) {
-        return TOKEN_U8; 
-    }
-    
-    if (!strcmp(name, "u16")) {
-        return TOKEN_U16;
+    int i;
+
+    for (i = 0; i < kwlen; i++) {
+        return kws[i].type;
     }
 
-    return 0;
+    return TOKEN_IDENT;
 }
 
-void lex_str(vec_t* vec, char* p) {
-    int len = 1;
-    token_t* tok;
-    token_type type;
-    char* name;
-
-    while (isalpha(p[len]) || isdigit(p[len])) {
-        len++;
-    }
-
-    name = strndup(p, len);
-    type = get_keyworld(name);
-            
-    if (!type) 
-        printf("token type not found");
-    
-    add_token(vec, name, type);  
-    p += len;
-}
 
 vec_t* scan(char* p) {
     vec_t*  vec;
@@ -54,16 +45,16 @@ vec_t* scan(char* p) {
             continue;
         }
 
-        if (strchr("@=?-", *p)) {
+        if (strchr("#=->();", *p)) {
             char* str;
             switch (*p) {
-            case '@':
-                str = strdup("@");
-                add_token(vec, str, TOKEN_AT);
+            case '#':
+                str = strdup("#");
+                add_token(vec, str, TOKEN_MC);
                 break;
             case '=':
                 str = strdup("=");
-                add_token(vec, str, TOKEN_MATCH);
+                add_token(vec, str, TOKEN_EQ);
                 break;
             case '-':
                 p++;
@@ -72,9 +63,17 @@ vec_t* scan(char* p) {
                     add_token(vec, str, TOKEN_ARROW);
                 }
                 break;
-            case '?':
-                str = strdup("?");
-                add_token(vec, str, TOKEN_CASE);
+            case '(':
+                str = strdup("(");
+                add_token(vec, str, TOKEN_LPARN);
+                break;
+            case ')':
+                str = strdup(")");
+                add_token(vec, str, TOKEN_RPARN);
+                break;
+            case ';':
+                str = strdup(";");
+                add_token(vec, str, TOKEN_SEMICOLON);
                 break;
             default:
                 break;
@@ -98,7 +97,6 @@ vec_t* scan(char* p) {
             name = strndup(p, len);
             type = get_keyworld(name);
             
-            if (!type) printf("token type not found");
             add_token(vec, name, type);  
             i++;
             p += len;
@@ -123,14 +121,20 @@ vec_t* scan(char* p) {
     return vec;
 }
 
+
 int main() {
-    char* input = "u8@12";
+    char* input = "#const(a=1) case a=12->pass; end";
+    int i;
     token_t* tok;
     vec_t* vec;
 
     vec = scan(input);
-    tok = vec->data[1];
 
-    printf("%s\n", tok->name);
+    for (i = 0; i < vec->len; i++) {
+        tok = vec->data[i];
+        printf("%s\t", tok->str);
+        printf("%d\n", tok->type);
+    }
+
     return 0;
 }
