@@ -14,7 +14,6 @@ static kw_t kws[] = {
     {.name="u8",     .type = TOKEN_U8},
     {.name="u16",    .type = TOKEN_U16},
     {.name="const",  .type = TOKEN_CONST},
-    {.name="case",   .type = TOKEN_CASE},
     {.name="drop",   .type = TOKEN_DROP},
     {.name="pass",   .type = TOKEN_PASS},
     {.name="end",    .type = TOKEN_END}
@@ -45,7 +44,7 @@ vec_t* scan(char* p) {
             continue;
         }
 
-        if (strchr("#=->();", *p)) {
+        if (strchr("#?=->();", *p)) {
             char* str;
             switch (*p) {
             case '#':
@@ -67,6 +66,10 @@ vec_t* scan(char* p) {
             case ';':
                 str = strdup(";");
                 add_token(vec, str, TOKEN_SEMICOLON);
+                break;
+            case '?':
+                str = strdup("?");
+                add_token(vec, str, TOKEN_CASE);
                 break;
             case '-':
                 p++;
@@ -140,7 +143,7 @@ void free_tok(vec_t* toks) {
 
 
 int main() {
-    char* input = "#const(a=1) case a=12->pass; end";
+    char* input = "#const(a=1) a? =12->pass; end";
     int i;
     token_t* tok;
     vec_t* vec;

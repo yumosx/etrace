@@ -1,8 +1,4 @@
-BEGIN {
-  puts("start a program");
-}
-
-target eth0
+puts("start a program");
 
 #const (
   first = sk[12, u8];
@@ -11,8 +7,13 @@ target eth0
   ip    = 0x0800;
 );
 
-case first
+first?
   =arp -> pass;
-  =ip -> =udp -> drop;
+  =ip -> udp? -> drop;  
   then -> puts("no match");
+end
+
+first?
+  =0x800 -> pass;
+  then   -> pass;
 end

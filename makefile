@@ -1,5 +1,5 @@
 .PHONY: all clean
-HEADERS = xdp.h
+HEADERS = xdp.h bpflib.h
 SRCS = 	 lex.c ut.c
 
 CFLAGS = -Wall -g

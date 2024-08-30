@@ -12,7 +12,6 @@
 #include <linux/rtnetlink.h>
 #include <linux/bpf.h>
 
-
 #define _size(arr) sizeof(arr) / sizeof(arr[0])
 
 //  token
@@ -41,7 +40,6 @@ typedef struct token_t {
     token_type type;
 } token_t;
 
-
 typedef struct kw {
     char* name;
     token_type type;
@@ -58,18 +56,42 @@ enum expr_type_e {
 typedef enum type_t{
     TYPE_VAR,
     TYPE_INT,
+    TYPE_COND,
+    TYPE_MATCH,
+    TYPE_EXPR,
+    TYPE_U8,
+    TYPE_U16,
 } type_t;
 
-typedef struct iff_t {
+// =0x12
+struct match{
+    size_t op;
+    node_t* value;
+};
 
-} iff_t;
+// =0x12 -> pass;
+struct expr {
+    size_t op;
+    node_t* left;
+    node_t* right;
+};
+
+struct cond{
+    node_t* prev;
+    struct node_t* stmts;
+};
 
 typedef struct node_t {
+    struct node_t* next;
+
     type_t type;
     char* name;
+    
     union {
         int integer;
-        iff_t iff;
+        struct match match; 
+        struct expr expr;        
+        struct cond cond;
     };
 } node_t;
 
@@ -80,19 +102,21 @@ enum xdp_attach_mode {
     XDP_MODE_HW = XDP_FLAGS_HW_MODE,
 };
 
-enum hook {
+typedef enum hook {
     BF_HOOK_NFT_INGRESS,
     BF_HOOK_TC_INGRESS,
     BF_HOOK_IPT_PRE_ROUTINE,
-};
+} hook_type;
 
 typedef struct prog_t {
     char* name;
     uint32_t ifindex;
-    enum hook h;
-    int prog_fd;
-    struct bpf_insn* img;
+    hook_type type;
+    struct bpf_insn* ip;
+    struct bpf_insn prog[BPF_MAXINSNS];
 } prog_t;
+
+void emit(prog_t* prog, struct bpf_insn insn);
 
 /// ut
 typedef struct vec_t {
@@ -105,5 +129,7 @@ noreturn void error(char* fmt, ...);
 vec_t* vec_new();
 void vec_push(vec_t* vec, void* elem);
 void vec_free(vec_t* vec);
+
+#define _aligned(x) __attribute__((aligned(x)))
 
 #endif
