@@ -56,13 +56,6 @@ vec_t* scan(char* p) {
                 str = strdup("=");
                 add_token(vec, str, TOKEN_EQ);
                 break;
-            case '-':
-                p++;
-                if (*p == '>') {
-                    str = strdup("->");
-                    add_token(vec, str, TOKEN_ARROW);
-                }
-                break;
             case '(':
                 str = strdup("(");
                 add_token(vec, str, TOKEN_LPARN);
@@ -74,6 +67,13 @@ vec_t* scan(char* p) {
             case ';':
                 str = strdup(";");
                 add_token(vec, str, TOKEN_SEMICOLON);
+                break;
+            case '-':
+                p++;
+                if (*p == '>') {
+                    str = strdup("->");
+                    add_token(vec, str, TOKEN_ARROW);
+                }
                 break;
             default:
                 break;
@@ -116,9 +116,26 @@ vec_t* scan(char* p) {
             p += len;
             continue;
         }
+
+        error("cannot tokenize: %s", p);    
     }
     add_token(vec, p, TOKEN_EOF);
     return vec;
+}
+
+void free_tok(vec_t* toks) {
+    token_t* tok;
+    int i;    
+
+    for (i = 0; i < toks->len; i++) {
+        tok = toks->data[i];
+        if (tok && tok->type != TOKEN_EOF) {
+            free(tok->str);
+            free(tok);
+        }
+    }
+
+    vec_free(toks);
 }
 
 
@@ -135,6 +152,6 @@ int main() {
         printf("%s\t", tok->str);
         printf("%d\n", tok->type);
     }
-
+    free_tok(vec);
     return 0;
 }

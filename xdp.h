@@ -6,7 +6,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <stdarg.h>
+#include <assert.h>
+#include <stdnoreturn.h>
 #include <linux/rtnetlink.h>
+#include <linux/bpf.h>
+
 
 #define _size(arr) sizeof(arr) / sizeof(arr[0])
 
@@ -49,27 +54,56 @@ enum expr_type_e {
     EXPR_TYPE_TEST,
 };
 
-typedef enum {
-    NODE_VAR,
-    NODE_INT,
+/// node 
+typedef enum type_t{
+    TYPE_VAR,
+    TYPE_INT,
 } type_t;
+
+typedef struct iff_t {
+
+} iff_t;
 
 typedef struct node_t {
     type_t type;
+    char* name;
+    union {
+        int integer;
+        iff_t iff;
+    };
 } node_t;
 
-typedef struct req_t{
-    struct nlmsghdr nhdr;
-    struct ifinfomsg ifinfo;
-    char buf[64];
-} req_t;
+/// net
+enum xdp_attach_mode {
+    XDP_MODE_SKB = XDP_FLAGS_SKB_MODE,
+    XDP_MODE_DRV = XDP_FLAGS_DRV_MODE,
+    XDP_MODE_HW = XDP_FLAGS_HW_MODE,
+};
 
+enum hook {
+    BF_HOOK_NFT_INGRESS,
+    BF_HOOK_TC_INGRESS,
+    BF_HOOK_IPT_PRE_ROUTINE,
+};
+
+typedef struct prog_t {
+    char* name;
+    uint32_t ifindex;
+    enum hook h;
+    int prog_fd;
+    struct bpf_insn* img;
+} prog_t;
+
+/// ut
 typedef struct vec_t {
     int len;
     int cap;
     void** data;   
 } vec_t;
 
+noreturn void error(char* fmt, ...);
 vec_t* vec_new();
 void vec_push(vec_t* vec, void* elem);
+void vec_free(vec_t* vec);
+
 #endif

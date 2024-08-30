@@ -2,6 +2,7 @@
     "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
         "netlink.h": "c",
-        "xdp.h": "c"
+        "xdp.h": "c",
+        "cerrno": "c"
     }
 }

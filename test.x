@@ -1,12 +1,14 @@
-BEGIN{
+BEGIN {
   puts("start a program");
 }
 
+target eth0
+
 #const (
-    first = packet[12, u8];
-    udp   = packet[23, u16];
-    arp   = 0x0806;
-    ip    = 0x0800;
+  first = sk[12, u8];
+  udp   = sk[23, u16];
+  arp   = 0x0806;
+  ip    = 0x0800;
 );
 
 case first
